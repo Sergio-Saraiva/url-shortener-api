@@ -1,0 +1,7 @@
+ServerConfig:
+  Port: 3000
+  Host: localhost
+RedisConfig:
+  RedisAddr: localhost:6379
+  Password: ""
+  DB: 0
