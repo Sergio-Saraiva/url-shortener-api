@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 	"url-shortener/internal/models"
@@ -17,13 +18,17 @@ type usersUseCases struct {
 	userTokenRepo users.UsersTokenRepo
 }
 
+func encryptPassword(password string) string {
+	h := sha256.New()
+	h.Write([]byte(password))
+	return fmt.Sprintf("%x", string(h.Sum(nil)))
+}
+
 // CreateUser implements users.UsersUseCases.
 func (u *usersUseCases) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
 	log.Println("Creating user usecase")
 
-	encriptedPass := sha256.Sum256([]byte(user.Password))
-	user.Password = string(encriptedPass[:])
-
+	user.Password = encryptPassword(user.Password)
 	user.Username = namegenerator.NewNameGenerator(time.Now().UTC().UnixNano()).Generate()
 
 	createdUser, err := u.usersRepo.CreateUser(ctx, user)
@@ -66,8 +71,7 @@ func (u *usersUseCases) GetUser(ctx context.Context, email string) (*models.User
 func (u *usersUseCases) SignIn(ctx context.Context, user *models.User, signInReq *models.SignInRequest) (string, error) {
 	log.Println("Signing in usecase")
 
-	encriptedPass := sha256.Sum256([]byte(signInReq.Password))
-	signInReq.Password = string(encriptedPass[:])
+	signInReq.Password = encryptPassword(signInReq.Password)
 
 	if signInReq.Password != user.Password {
 		log.Println("Invalid password")

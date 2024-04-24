@@ -4,7 +4,7 @@ import (
 	"net/http"
 	urlRedisRepo "url-shortener/internal/url/repository"
 	ursUseCase "url-shortener/internal/url/usecases"
-	usersDeliveryHttp "url-shortener/internal/users/deilery/http"
+	usersDeliveryHttp "url-shortener/internal/users/delivery/http"
 	usersRepo "url-shortener/internal/users/repository"
 	usersUsecases "url-shortener/internal/users/usecases"
 
