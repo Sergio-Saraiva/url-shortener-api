@@ -10,6 +10,12 @@ import (
 type Config struct {
 	RedisConfig  RedisConfig
 	ServerConfig ServerConfig
+	MongoConfig  MongoConfig
+	TokenConfig  TokenConfig
+}
+
+type TokenConfig struct {
+	Secret string
 }
 
 type ServerConfig struct {
@@ -21,6 +27,14 @@ type RedisConfig struct {
 	RedisAddr string
 	Password  string
 	DB        int
+}
+
+type MongoConfig struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	Database string
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

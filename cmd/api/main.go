@@ -5,6 +5,7 @@ import (
 	"os"
 	"url-shortener/config"
 	"url-shortener/internal/server"
+	"url-shortener/pkg/db/mongodb"
 	"url-shortener/pkg/db/redis"
 	"url-shortener/pkg/utils"
 )
@@ -26,7 +27,12 @@ func main() {
 
 	redisClient := redis.NewRedisClient(cfg)
 
-	s := server.NewServer(cfg, redisClient)
+	mongoClient, err := mongodb.NewMongoDBConnection(cfg)
+	if err != nil {
+		log.Fatalf("Error creating connection to MongoDB: %v", err)
+	}
+
+	s := server.NewServer(cfg, redisClient, mongoClient)
 	if err = s.Run(); err != nil {
 		log.Fatal(err)
 	}

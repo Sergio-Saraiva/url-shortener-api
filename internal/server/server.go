@@ -8,19 +8,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Server struct {
 	chi         *chi.Mux
 	config      *config.Config
 	redisClient *redis.Client
+	mongoClient *mongo.Database
 }
 
-func NewServer(cfg *config.Config, rdb *redis.Client) *Server {
+func NewServer(cfg *config.Config, rdb *redis.Client, mdb *mongo.Database) *Server {
 	return &Server{
 		chi:         chi.NewRouter(),
 		config:      cfg,
 		redisClient: rdb,
+		mongoClient: mdb,
 	}
 }
 

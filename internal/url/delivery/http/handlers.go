@@ -63,12 +63,12 @@ func (u *urlHandler) CreateShortUrl() http.HandlerFunc {
 			return
 		}
 
-		result = regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(result, "")
+		replaced := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(result, "")
 
-		urlToken := u.urlUseCase.GenerateUrlToken(ctx, result)
+		urlToken := u.urlUseCase.GenerateUrlToken(ctx, replaced)
 		shortUrl := u.urlUseCase.GenerateShortUrl(ctx, urlToken)
 
-		err = u.urlUseCase.SaveUrl(ctx, urlToken, urlShortRequest.Url)
+		err = u.urlUseCase.SaveUrl(ctx, urlToken, result)
 		if err != nil {
 			log.Printf("Error saving URL: %v", err)
 			http.Error(w, "Error saving URL", http.StatusInternalServerError)

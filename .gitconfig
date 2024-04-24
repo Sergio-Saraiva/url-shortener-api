@@ -20,3 +20,5 @@
 
 # Output directory
 /bin/
+
+/config/config-local.yml
