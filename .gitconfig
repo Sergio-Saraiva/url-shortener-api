@@ -21,4 +21,4 @@
 # Output directory
 /bin/
 
-/config/config-local.yml
+config/config-local.yml
