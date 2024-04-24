@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -15,6 +16,34 @@ import (
 type urlHandler struct {
 	cfg        *config.Config
 	urlUseCase sUrl.UrlUseCase
+}
+
+// CreateQRCode implements url.UrlHandler.
+func (u *urlHandler) CreateQRCode() http.HandlerFunc {
+	log.Println("CreateQRCode")
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.Background()
+
+		var generateQRCodeRequest models.GenerateQRCodeRequest
+		err := json.NewDecoder(r.Body).Decode(&generateQRCodeRequest)
+		if err != nil {
+			log.Printf("Error decoding request: %v", err)
+			http.Error(w, "Error decoding request", http.StatusBadRequest)
+			return
+		}
+
+		qrCode, err := u.urlUseCase.GenerateQRCode(ctx, generateQRCodeRequest.Url)
+		if err != nil {
+			log.Printf("Error generating QR code: %v", err)
+			http.Error(w, "Error generating QR code", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Length", fmt.Sprint(len(qrCode)))
+		w.Write(qrCode)
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 func NewAuthHandlers(cfg *config.Config, urlUseCase sUrl.UrlUseCase) sUrl.UrlHandler {

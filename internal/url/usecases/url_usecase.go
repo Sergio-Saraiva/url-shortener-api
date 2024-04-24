@@ -7,11 +7,28 @@ import (
 	"math/rand"
 	"url-shortener/config"
 	"url-shortener/internal/url"
+
+	"github.com/skip2/go-qrcode"
 )
 
 type urlUseCase struct {
 	redisRepo url.UrlRedisRepository
 	cfg       *config.Config
+}
+
+// GenerateQRCode implements url.UrlUseCase.
+func (u *urlUseCase) GenerateQRCode(ctx context.Context, url string) ([]byte, error) {
+	log.Println("Generating QR code")
+	var png []byte
+
+	png, err := qrcode.Encode(url, qrcode.Medium, 256)
+	if err != nil {
+		log.Printf("Error generating QR code: %v", err)
+		return nil, err
+	}
+
+	log.Println("QR code generated")
+	return png, nil
 }
 
 // GetUrl implements url.UrlUseCase.

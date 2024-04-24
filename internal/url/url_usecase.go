@@ -7,4 +7,5 @@ type UrlUseCase interface {
 	GenerateShortUrl(ctx context.Context, url string) string
 	GenerateUrlToken(ctx context.Context, url string) string
 	GetUrl(ctx context.Context, urlToken string) (string, error)
+	GenerateQRCode(ctx context.Context, url string) ([]byte, error)
 }
