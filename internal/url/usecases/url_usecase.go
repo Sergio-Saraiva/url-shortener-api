@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 	"url-shortener/config"
 	"url-shortener/internal/url"
 
@@ -69,9 +70,14 @@ func (u *urlUseCase) GenerateUrlToken(ctx context.Context, url string) string {
 }
 
 // SaveUrl implements url.UrlUseCase.
-func (u *urlUseCase) SaveUrl(ctx context.Context, urlToken string, urlValue string) error {
+func (u *urlUseCase) SaveUrl(ctx context.Context, urlToken string, urlValue string, userType string) error {
 	log.Println("Saving URL to Redis")
-	err := u.redisRepo.SaveUrl(ctx, urlToken, urlValue)
+	duration := time.Hour * 24 * 7
+	if userType == "paid" {
+		duration = 0
+	}
+
+	err := u.redisRepo.SaveUrl(ctx, urlToken, urlValue, duration)
 	if err != nil {
 		log.Printf("Error saving URL to Redis: %v", err)
 		return err

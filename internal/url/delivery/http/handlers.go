@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"regexp"
 	"url-shortener/config"
+	"url-shortener/internal/middlewares"
 	"url-shortener/internal/models"
 	sUrl "url-shortener/internal/url"
 )
@@ -75,7 +76,7 @@ func (u *urlHandler) RedirectToOriginalUrl() http.HandlerFunc {
 func (u *urlHandler) CreateShortUrl() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("CreateShortUrl")
-		ctx := context.Background()
+		ctx := r.Context()
 
 		var urlShortRequest models.UrlShortRequest
 		err := json.NewDecoder(r.Body).Decode(&urlShortRequest)
@@ -97,7 +98,7 @@ func (u *urlHandler) CreateShortUrl() http.HandlerFunc {
 		urlToken := u.urlUseCase.GenerateUrlToken(ctx, replaced)
 		shortUrl := u.urlUseCase.GenerateShortUrl(ctx, urlToken)
 
-		err = u.urlUseCase.SaveUrl(ctx, urlToken, result)
+		err = u.urlUseCase.SaveUrl(ctx, urlToken, result, fmt.Sprintf("%s", ctx.Value(middlewares.TypeKey)))
 		if err != nil {
 			log.Printf("Error saving URL: %v", err)
 			http.Error(w, "Error saving URL", http.StatusInternalServerError)

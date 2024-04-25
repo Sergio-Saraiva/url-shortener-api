@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"url-shortener/internal/middlewares"
 	urlRedisRepo "url-shortener/internal/url/repository"
 	ursUseCase "url-shortener/internal/url/usecases"
 	usersDeliveryHttp "url-shortener/internal/users/delivery/http"
@@ -23,9 +24,10 @@ func (s *Server) MapHandlers(chi *chi.Mux) error {
 
 	urlUseCases := ursUseCase.NewUrlUseCase(urlRedisRepo, s.config)
 	usersUseCases := usersUsecases.NewUsersUseCases(usersMongorepo, usersTokenRepo)
+	mwManager := middlewares.NewMiddlewaresManager(usersTokenRepo, usersUseCases)
 
 	urlHandler := urlDeliveryHttp.NewAuthHandlers(s.config, urlUseCases)
-	urlDeliveryHttp.MapUrlShortenerRoutes(chi, urlHandler)
+	urlDeliveryHttp.MapUrlShortenerRoutes(chi, urlHandler, *mwManager)
 
 	usersHandler := usersDeliveryHttp.NewHttpUserHandler(usersUseCases)
 	usersDeliveryHttp.MapUsersRoutes(chi, usersHandler)

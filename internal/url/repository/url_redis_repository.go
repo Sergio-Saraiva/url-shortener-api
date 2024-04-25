@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"log"
+	"time"
 	"url-shortener/internal/url"
 
 	"github.com/redis/go-redis/v9"
@@ -30,9 +31,9 @@ func (u *urlRedisRepository) GetUrl(ctx context.Context, urlToken string) (strin
 }
 
 // SaveUrl implements url.UrlRedisRepository.
-func (u *urlRedisRepository) SaveUrl(ctx context.Context, urlToken string, urlValue string) error {
+func (u *urlRedisRepository) SaveUrl(ctx context.Context, urlToken string, urlValue string, duration time.Duration) error {
 	log.Println("Saving URL to Redis")
-	result, err := u.redisClient.Set(ctx, urlToken, urlValue, 0).Result()
+	result, err := u.redisClient.Set(ctx, urlToken, urlValue, duration).Result()
 	if err != nil {
 		log.Printf("Error saving URL to Redis: %v", err)
 		return err

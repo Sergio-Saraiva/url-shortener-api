@@ -15,13 +15,30 @@ type usersTokenRepository struct {
 	config *config.Config
 }
 
+// GetClaims implements users.UsersTokenRepo.
+func (u *usersTokenRepository) GetClaims(ctx context.Context, token string) (map[string]interface{}, error) {
+	log.Println("GetClaims")
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(u.config.TokenConfig.Secret), nil
+	})
+
+	if err != nil {
+		log.Printf("Error getting claims: %v", err)
+		return nil, err
+	}
+
+	log.Println("Claims gotten")
+	return claims, nil
+}
+
 // CreateToken implements users.UsersTokenRepo.
-func (u *usersTokenRepository) CreateToken(ctx context.Context, username string) (string, error) {
+func (u *usersTokenRepository) CreateToken(ctx context.Context, email string) (string, error) {
 	log.Println("CreateToken")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"exp":      time.Now().Add(time.Hour * 24).Unix(),
+			"email": email,
+			"exp":   time.Now().Add(time.Hour * 24).Unix(),
 		})
 
 	tokenBytes, err := token.SignedString([]byte(u.config.TokenConfig.Secret))
@@ -38,7 +55,7 @@ func (u *usersTokenRepository) CreateToken(ctx context.Context, username string)
 func (u *usersTokenRepository) ValidateToken(ctx context.Context, tokenString string) (bool, error) {
 	log.Println("ValidateToken")
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return u.config.TokenConfig.Secret, nil
+		return []byte(u.config.TokenConfig.Secret), nil
 	})
 
 	if err != nil {

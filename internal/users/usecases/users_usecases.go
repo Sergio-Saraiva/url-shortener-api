@@ -30,6 +30,7 @@ func (u *usersUseCases) CreateUser(ctx context.Context, user *models.User) (*mod
 
 	user.Password = encryptPassword(user.Password)
 	user.Username = namegenerator.NewNameGenerator(time.Now().UTC().UnixNano()).Generate()
+	user.Type = "paid"
 
 	createdUser, err := u.usersRepo.CreateUser(ctx, user)
 	if err != nil {
